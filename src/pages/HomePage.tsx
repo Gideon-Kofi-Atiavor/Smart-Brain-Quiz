@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import QRModal from "../components/QrModal";
+import QrModal from "../components/QrModal";
 
 const HomePage: React.FC = () => {
   const [showQR, setShowQR] = useState(false);
@@ -24,7 +24,7 @@ const HomePage: React.FC = () => {
 
       <Footer />
 
-      <QRModal visible={showQR} quizId={quizId} onClose={() => setShowQR(false)} />
+      <QrModal visible={showQR} quizId={quizId} onClose={() => setShowQR(false)} />
 
     </div>
   );
