@@ -6,7 +6,7 @@ import QRModal from "../components/QrModal";
 const HomePage: React.FC = () => {
   const [showQR, setShowQR] = useState(false);
 
-  const quizId = 2; 
+  const quizId = 1; 
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
