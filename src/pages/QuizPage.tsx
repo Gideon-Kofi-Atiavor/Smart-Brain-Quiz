@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import Confetti from "react-confetti";
 import { Quiz } from "../Types/Quiz";
 import QuestionComponent from "../components/Questions";
 import Timer from "../components/Timer";
@@ -14,125 +16,114 @@ const quizzes: Quiz[] = [
       { id: 1, question: "12 × 8?", options: ["80","96","104","88"], answer: "96" },
       { id: 2, question: "√144?", options: ["10","11","12","14"], answer: "12" },
       { id: 3, question: "15 + 27?", options: ["40","42","43","45"], answer: "42" },
-      { id: 4, question: "9²?", options: ["18","72","81","99"], answer: "81" },
-      { id: 5, question: "Red Planet?", options: ["Earth","Mars","Jupiter","Venus"], answer: "Mars" },
-      { id: 6, question: "Gas humans breathe?", options: ["CO2","Nitrogen","Oxygen","Hydrogen"], answer: "Oxygen" },
-      { id: 7, question: "H2O is?", options: ["Salt","Water","Oxygen","Hydrogen"], answer: "Water" },
-      { id: 8, question: "Bones in adult body?", options: ["106","206","306","406"], answer: "206" },
-      { id: 9, question: "Force pulling objects down?", options: ["Magnetism","Friction","Gravity","Electricity"], answer: "Gravity" },
-      { id: 10, question: "100 ÷ 4?", options: ["20","25","30","40"], answer: "25" },
+      { id: 4, question: "Red Planet?", options: ["Earth","Mars","Jupiter","Venus"], answer: "Mars" },
+      { id: 5, question: "H2O is?", options: ["Salt","Water","Oxygen","Hydrogen"], answer: "Water" },
+      { id: 6, question: "9²?", options: ["18","72","81","99"], answer: "81" },
+      { id: 7, question: "Gas humans breathe?", options: ["CO2","Nitrogen","Oxygen","Hydrogen"], answer: "Oxygen" },
+      { id: 8, question: "100 ÷ 4?", options: ["20","25","30","40"], answer: "25" },
+      { id: 9, question: "Bones in adult human body?", options: ["106","206","306","406"], answer: "206" },
+      { id: 10, question: "Force pulling objects down?", options: ["Magnetism","Friction","Gravity","Electricity"], answer: "Gravity" }
     ]
   }
 ];
-
-const AnswersReviewModal: React.FC<{ visible: boolean; quiz: Quiz; selectedAnswers: string[]; onClose: () => void; }> = ({ visible, quiz, selectedAnswers, onClose }) => {
-  if (!visible) return null;
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white p-6 rounded shadow max-w-lg w-full max-h-[80vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Review Answers</h2>
-        <ul className="space-y-2">
-          {quiz.questions.map((q, idx) => {
-            const userAns = selectedAnswers[idx] || "Not answered";
-            const correct = q.answer;
-            const isCorrect = userAns === correct;
-            return (
-              <li key={q.id} className="p-2 border rounded">
-                <p className="font-semibold">{idx+1}. {q.question}</p>
-                <p>Your answer: <span className={isCorrect ? "text-green-600" : "text-red-600"}>{userAns}</span></p>
-                {!isCorrect && <p>Correct: <span className="text-green-600">{correct}</span></p>}
-              </li>
-            );
-          })}
-        </ul>
-        <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={onClose}>Close</button>
-      </div>
-    </div>
-  );
-};
 
 const QuizPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const quizId = Number(searchParams.get("id"));
   const [quiz, setQuiz] = useState<Quiz | null>(null);
-  const [quizStarted, setQuizStarted] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
+  const [started, setStarted] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
-  const [wrongAnswers, setWrongAnswers] = useState<string[]>([]);
+  const [wrong, setWrong] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
-  const [showReview, setShowReview] = useState(false);
 
   useEffect(() => { setQuiz(quizzes.find(q => q.id === quizId) || null); }, [quizId]);
 
-  const handleAnswer = useCallback((answer: string) => {
-    if (!quiz || selectedAnswer) return;
-    setSelectedAnswer(answer);
-    setSelectedAnswers(prev => { const arr=[...prev]; arr[currentIndex]=answer; return arr; });
-    const correct = quiz.questions[currentIndex].answer;
-    const newScore = answer === correct ? score + 1 : score;
-    if (answer !== correct) setWrongAnswers(prev => [...prev, `Q${currentIndex+1}: ${quiz.questions[currentIndex].question}`]);
-    if (answer === correct) setScore(newScore);
-
+  const handleAnswer = useCallback((ans: string) => {
+    if (!quiz || selected) return;
+    setSelected(ans);
+    const correct = quiz.questions[index].answer;
+    const newScore = ans === correct ? score + 1 : score;
+    if (ans !== correct) setWrong(prev => [...prev, `Q${index+1}: ${quiz.questions[index].question}`]);
+    if (ans === correct) setScore(newScore);
     setTimeout(() => {
-      if (currentIndex + 1 < quiz.questions.length) { setCurrentIndex(prev => prev + 1); setSelectedAnswer(null); }
+      if (index + 1 < quiz.questions.length) { setIndex(prev => prev + 1); setSelected(null); }
       else { setShowResult(true); saveQuizResult(newScore, quiz.questions.length); }
-    }, 500);
-  }, [quiz, currentIndex, score, selectedAnswer]);
+    }, 600);
+  }, [quiz, index, score, selected]);
 
-  const handleTimeUp = () => { if (!showResult) handleAnswer(""); };
-  if (!quiz) return <p className="p-4">Quiz not found</p>;
+  if (!quiz) return <p className="p-6">Quiz not found</p>;
 
- 
-  if (!quizStarted) return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">{quiz.title}</h1>
-      <div className="bg-blue-100 p-4 mb-6 rounded shadow max-w-md text-left">
-        <h2 className="font-semibold mb-2">Instructions:</h2>
-        <ul className="list-disc pl-5 space-y-1 text-sm">
-          <li>Each question has a time limit of 15 seconds.</li>
-          <li>Select the answer by clicking the button.</li>
-          <li>You can see your score after completing all questions.</li>
-          <li>Review your answers after finishing to see correct and wrong answers.</li>
-        </ul>
+  if (!started)
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-100 text-center p-6">
+        <motion.h1 initial={{opacity:0,y:-20}} animate={{opacity:1,y:0}} className="text-3xl font-bold mb-4">
+          {quiz.title}
+        </motion.h1>
+        <p className="mb-6 text-gray-600 max-w-md">
+          You have 15 seconds per question. Choose wisely and aim for a high score!
+        </p>
+        <button
+          onClick={() => setStarted(true)}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-2xl shadow-lg hover:scale-105 transition"
+        >
+          Start Quiz 🚀
+        </button>
       </div>
-      <button className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600" onClick={() => setQuizStarted(true)}>Get Ready</button>
-    </div>
-  );
+    );
 
+  const progress = ((index + 1) / quiz.questions.length) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 bg-gray-100">
-      <Timer
-        duration={15}
-        onTimeUp={handleTimeUp}
-        keyProp={currentIndex}
-        running={!showResult}
-        currentQuestion={currentIndex}
-        totalQuestions={quiz.questions.length}
-      />
-      <QuestionComponent
-        question={quiz.questions[currentIndex]}
-        onAnswer={handleAnswer}
-        selectedAnswer={selectedAnswer}
-        index={currentIndex}
-        total={quiz.questions.length}
-      />
+    <div className="min-h-screen flex flex-col items-center p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+      {showResult && score > quiz.questions.length / 2 && <Confetti />}
+
+      <div className="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-lg">
+        
+        {/* Progress */}
+        <div className="mb-4 w-full">
+          <div className="h-3 w-full bg-gray-300 rounded-full overflow-hidden">
+            <motion.div
+              className="h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            />
+          </div>
+          <p className="text-sm mt-1 text-gray-600">
+            Question {index + 1} of {quiz.questions.length}
+          </p>
+        </div>
+
+        <Timer
+          duration={15}
+          onTimeUp={() => handleAnswer("")}
+          keyProp={index}
+          running={!showResult}
+          currentQuestion={index}
+          totalQuestions={quiz.questions.length}
+        />
+
+        <motion.div key={index} initial={{opacity:0,x:20}} animate={{opacity:1,x:0}}>
+          <QuestionComponent
+            question={quiz.questions[index]}
+            onAnswer={handleAnswer}
+            selectedAnswer={selected}
+            index={index}
+            total={quiz.questions.length}
+          />
+        </motion.div>
+      </div>
+
       <ResultModal
         visible={showResult}
         score={score}
         total={quiz.questions.length}
-        wrongAnswers={wrongAnswers}
+        wrongAnswers={wrong}
         onRetry={() => window.location.reload()}
         onClose={() => setShowResult(false)}
-        onViewAnswers={() => setShowReview(true)}
-      />
-      <AnswersReviewModal
-        visible={showReview}
-        quiz={quiz}
-        selectedAnswers={selectedAnswers}
-        onClose={() => setShowReview(false)}
+        onViewAnswers={() => {}}
       />
     </div>
   );

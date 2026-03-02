@@ -11,3 +11,17 @@
 .animate-bounce-slow {
   animation: bounce-slow 6s ease-in-out infinite;
 }
+
+
+
+/* index.css */
+.quiz-bg {
+  /* @apply min-h-screen flex flex-col items-center p-6; */
+  background: repeating-linear-gradient(
+    45deg,
+    #e0f2fe,
+    #e0f2fe 20px,
+    #f3e8ff 20px,
+    #f3e8ff 40px
+  );
+}

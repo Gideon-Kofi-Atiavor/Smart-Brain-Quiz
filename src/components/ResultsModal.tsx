@@ -10,7 +10,7 @@ onViewAnswers: () => void;
   onClose: () => void;
 }
 
-const ResultModal: React.FC<Props> = ({
+const ResultsModal: React.FC<Props> = ({
   visible,
   score,
   total,
@@ -59,4 +59,4 @@ const ResultModal: React.FC<Props> = ({
   );
 };
 
-export default ResultModal;
+export default ResultsModal;
