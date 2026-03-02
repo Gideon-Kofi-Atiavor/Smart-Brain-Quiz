@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { QrCode, Trophy, Clock } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import QRModal from "../components/QrModal";
+import QrModal from "../components/QrModal";
 
 const HomePage: React.FC = () => {
   const [showQR, setShowQR] = useState(false);
@@ -70,7 +70,7 @@ const HomePage: React.FC = () => {
 
       <Footer />
 
-      <QRModal
+      <QrModal
         visible={showQR}
         quizId={quizId}
         onClose={() => setShowQR(false)}
