@@ -57,7 +57,7 @@ const QuizPage: React.FC = () => {
 
   if (!started)
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-100 text-center p-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-blue-50 to-purple-100 text-center p-6">
         <motion.h1 initial={{opacity:0,y:-20}} animate={{opacity:1,y:0}} className="text-3xl font-bold mb-4">
           {quiz.title}
         </motion.h1>
@@ -66,7 +66,7 @@ const QuizPage: React.FC = () => {
         </p>
         <button
           onClick={() => setStarted(true)}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-2xl shadow-lg hover:scale-105 transition"
+          className="bg-linear-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-2xl shadow-lg hover:scale-105 transition"
         >
           Start Quiz 🚀
         </button>
@@ -76,7 +76,7 @@ const QuizPage: React.FC = () => {
   const progress = ((index + 1) / quiz.questions.length) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen flex flex-col items-center p-6 bg-linear-to-br from-blue-50 to-purple-50">
       {showResult && score > quiz.questions.length / 2 && <Confetti />}
 
       <div className="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-lg">
@@ -85,7 +85,7 @@ const QuizPage: React.FC = () => {
         <div className="mb-4 w-full">
           <div className="h-3 w-full bg-gray-300 rounded-full overflow-hidden">
             <motion.div
-              className="h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+              className="h-3 bg-linear-to-r from-blue-500 to-purple-600 rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
