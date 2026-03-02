@@ -8,7 +8,7 @@ type Props = {
   onClose: () => void;
 }
 
-const Modal: React.FC<Props> = ({ visible, quizId, onClose }) => {
+const QRModal: React.FC<Props> = ({ visible, quizId, onClose }) => {
   const [qrUrl, setQrUrl] = useState("");
 
   useEffect(() => {
@@ -84,4 +84,4 @@ const Modal: React.FC<Props> = ({ visible, quizId, onClose }) => {
   );
 };
 
-export default Modal;
+export default QRModal;
