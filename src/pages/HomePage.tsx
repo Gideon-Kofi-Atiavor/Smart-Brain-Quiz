@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { QrCode, Trophy, Clock } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import QrModal from "../components/QrModal.tsx";
+import QrModal from "../components/QrModal";
 
 const HomePage: React.FC = () => {
   const [showQR, setShowQR] = useState(false);
