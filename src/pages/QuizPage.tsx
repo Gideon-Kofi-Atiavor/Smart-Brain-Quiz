@@ -38,19 +38,35 @@ const QuizPage: React.FC = () => {
   const [wrong, setWrong] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
 
-  useEffect(() => { setQuiz(quizzes.find(q => q.id === quizId) || null); }, [quizId]);
+  useEffect(() => {
+    setQuiz(quizzes.find(q => q.id === quizId) || null);
+  }, [quizId]);
 
   const handleAnswer = useCallback((ans: string) => {
     if (!quiz || selected) return;
+
     setSelected(ans);
     const correct = quiz.questions[index].answer;
     const newScore = ans === correct ? score + 1 : score;
-    if (ans !== correct) setWrong(prev => [...prev, `Q${index+1}: ${quiz.questions[index].question}`]);
-    if (ans === correct) setScore(newScore);
+
+    if (ans !== correct) {
+      setWrong(prev => [...prev, `Q${index+1}: ${quiz.questions[index].question}`]);
+    }
+
+    if (ans === correct) {
+      setScore(newScore);
+    }
+
     setTimeout(() => {
-      if (index + 1 < quiz.questions.length) { setIndex(prev => prev + 1); setSelected(null); }
-      else { setShowResult(true); saveQuizResult(newScore, quiz.questions.length); }
+      if (index + 1 < quiz.questions.length) {
+        setIndex(prev => prev + 1);
+        setSelected(null);
+      } else {
+        setShowResult(true);
+        saveQuizResult(newScore, quiz.questions.length);
+      }
     }, 600);
+
   }, [quiz, index, score, selected]);
 
   if (!quiz) return <p className="p-6">Quiz not found</p>;
@@ -68,64 +84,50 @@ const QuizPage: React.FC = () => {
           onClick={() => setStarted(true)}
           className="bg-linear-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-2xl shadow-lg hover:scale-105 transition"
         >
-          Start Quiz 🚀
+          Start Quiz 
         </button>
       </div>
     );
 
-  const progress = ((index + 1) / quiz.questions.length) * 100;
-
   return (
-    <div className="min-h-screen flex flex-col items-center p-6 bg-linear-to-br from-blue-50 to-purple-50">
-      {showResult && score > quiz.questions.length / 2 && <Confetti />}
+    <div
+  className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat p-6"
+  style={{ backgroundImage: "url('/quiz-bg.jpg')" }}
+>  {showResult && score > quiz.questions.length / 2 && <Confetti />}
+  <div className="w-full max-w-2xl bg-white/20 backdrop-blur-lg p-10 rounded-3xl shadow-2xl border border-white/30 flex flex-col items-center text-center gap-6">
 
-      <div className="w-full max-w-2xl bg-white p-6 rounded-2xl shadow-lg">
-        
-        {/* Progress */}
-        <div className="mb-4 w-full">
-          <div className="h-3 w-full bg-gray-300 rounded-full overflow-hidden">
-            <motion.div
-              className="h-3 bg-linear-to-r from-blue-500 to-purple-600 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-            />
-          </div>
-          <p className="text-sm mt-1 text-gray-600">
-            Question {index + 1} of {quiz.questions.length}
-          </p>
-        </div>
+    <Timer
+      duration={15}
+      onTimeUp={() => handleAnswer("")}
+      keyProp={index}
+      running={!showResult}
+      currentQuestion={index}
+      totalQuestions={quiz.questions.length}
+    />
 
-        <Timer
-          duration={15}
-          onTimeUp={() => handleAnswer("")}
-          keyProp={index}
-          running={!showResult}
-          currentQuestion={index}
-          totalQuestions={quiz.questions.length}
-        />
-
-        <motion.div key={index} initial={{opacity:0,x:20}} animate={{opacity:1,x:0}}>
-          <QuestionComponent
-            question={quiz.questions[index]}
-            onAnswer={handleAnswer}
-            selectedAnswer={selected}
-            index={index}
-            total={quiz.questions.length}
-          />
-        </motion.div>
-      </div>
-
-      <ResultModal
-        visible={showResult}
-        score={score}
+    <motion.div key={index} initial={{opacity:0,x:20}} animate={{opacity:1,x:0}}>
+      <QuestionComponent
+        question={quiz.questions[index]}
+        onAnswer={handleAnswer}
+        selectedAnswer={selected}
+        index={index}
         total={quiz.questions.length}
-        wrongAnswers={wrong}
-        onRetry={() => window.location.reload()}
-        onClose={() => setShowResult(false)}
-        onViewAnswers={() => {}}
       />
-    </div>
+    </motion.div>
+
+  </div>
+
+  <ResultModal
+    visible={showResult}
+    score={score}
+    total={quiz.questions.length}
+    wrongAnswers={wrong}
+    onRetry={() => window.location.reload()}
+    onClose={() => setShowResult(false)}
+    onViewAnswers={() => {}}
+  />
+
+</div>
   );
 };
 

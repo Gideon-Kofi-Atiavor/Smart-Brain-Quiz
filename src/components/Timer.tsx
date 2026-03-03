@@ -19,7 +19,7 @@ const Timer: React.FC<TimerProps> = ({
 }) => {
   const [timeLeft, setTimeLeft] = useState(duration);
 
-  // Reset timer on question change
+  // Reset timer when  question change
   useEffect(() => {
     setTimeLeft(duration);
   }, [duration, keyProp]);
